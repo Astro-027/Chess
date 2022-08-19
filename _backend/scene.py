@@ -751,7 +751,7 @@ class Game(Scene):
                 sys.exit()
             elif self.menu_button.input(mouse_pos):
                 self.manager.pop()
-                scene = PlayerSelection(self.manager)
+                scene = TimeSelection(self.manager)
                 self.manager.push(scene)
     
         self.menu_button.set_color(mouse_pos)

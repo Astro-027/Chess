@@ -8,7 +8,7 @@ from player import *
 def main():
     # Create Window
     pygame.init()
-    screen = pygame.display.set_mode(PIXEL_TO_ASPECT(WIDTH, HEIGHT), pygame.RESIZABLE)
+    screen = pygame.display.set_mode(PIXEL_TO_ASPECT(WIDTH, HEIGHT))
     pygame.display.set_caption("Main Menu")
 
     # Create Player
