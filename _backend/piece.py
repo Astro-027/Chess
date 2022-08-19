@@ -236,9 +236,6 @@ class Pawn(Piece):
                 self.piece_moves = [('0', '1')] if self.turn == 0 else [('0', '-1')]
     
     def check_enpassant(self, pieces):
-        # if self.en_passant != None:
-        #     self.en_passant = []
-        #     return False
         self.en_passant = None
         opponent_pawns = [p for p in pieces if not p.captured and p.turn != self.turn and p.move_count == 1 and p.piece_name == self.piece_name and p.current_pos[1] in [3, 4]]
         opponents_positions = [p.current_pos for p in opponent_pawns]
@@ -252,8 +249,11 @@ class Pawn(Piece):
 
     def do_enpassant(self):
         if self.en_passant == None: return False
-        if (not self.board_turns and self.turn == 0) or not self.board_turns:
-            self.force_move(self.en_passant.current_pos[0], self.current_pos[1] + 1)
+        if not self.board_turns:
+            if self.turn == 0:
+                self.force_move(self.en_passant.current_pos[0], self.current_pos[1] - 1)
+            else:
+                self.force_move(self.en_passant.current_pos[0], self.current_pos[1] + 1)
         else:
             self.force_move(self.en_passant.current_pos[0], self.current_pos[1] - 1)
         self.en_passant.destroy_piece()

@@ -25,10 +25,6 @@ class Board:
         self.pause = False
         self.board_turning = False
         
-        self.ai_thinking = False
-        self.delay = 1
-        self.ai_delay = random.randint(3, 10)
-        
         self._reset_selected()
         self._reset_pieces()
 
@@ -71,7 +67,7 @@ class Board:
                             self.select_block(None, (selected_piece.current_pos[0], selected_piece.current_pos[1]))
                     self.ai_delay -= 1
                 else:
-                    self.ai_delay = random.randint(3, 10)
+                    self.ai_delay = random.randint(2, len(self.ai_pieces) + 2)
                     self.ai_thinking = False
             if self.board_turning:
                 if self.delay > 0:
@@ -120,6 +116,22 @@ class Board:
                 self.select_block(None, (selected_piece.current_pos[0], selected_piece.current_pos[1]))
             drop_pos = random.sample(self.selected_piece.get_movement(self.pieces) + self.selected_piece.get_capturables(self.pieces), 1)[0]
             self.select_block(None, (drop_pos[0], drop_pos[1]))
+            if self.needs_change:
+                random_select = random.randint(1, 5)
+                pos = self.needs_change.current_pos
+                turn = self.needs_change.turn
+                if random_select == 1:
+                    self.change_piece(Queen(pos, turn), False)
+                    self._handle_turn()
+                elif random_select == 2:
+                    self.change_piece(Bishop(pos, turn), False)
+                    self._handle_turn()
+                elif random_select == 3:
+                    self.change_piece(Rook(pos, turn), False)
+                    self._handle_turn()
+                else:
+                    self.change_piece(Knight(pos, turn), False)
+                    self._handle_turn()
             
 
     def draw_squares(self,screen, playing_field):
@@ -142,6 +154,9 @@ class Board:
                 self.draw_rect(screen, LIGHT_GREEN, sq, 300)
             if (x, y) in self.capturables:
                 pygame.draw.rect(screen, RED, sq, 3)
+            if (x, y) == self.en_passant_block:
+                pygame.draw.rect(screen, RED, sq)
+
         
         self.add_labels(screen, square, playing_field)
     
@@ -273,6 +288,10 @@ class Board:
                 if (self.pieces[piece_positions.index(self.selected_block)].turn == self.current_turn):
                     self.selected_piece = self.pieces[piece_positions.index(self.selected_block)]
                     self.handle_check()
+                    
+                    if self.selected_piece.piece_name == 'pawn':
+                        self.check_enpassant(self.selected_piece)
+                    
                     if self.selected_piece.piece_name == 'king':
                         if self.selected_piece.check_castling(self.pieces):
                             for block in self.selected_piece.castling_blocks:
@@ -329,6 +348,14 @@ class Board:
             self._handle_turn()
             self._reset_selected()
             return True
+        
+        if self.selected_piece.piece_name == 'pawn' and (block_x, block_y) == self.en_passant_block:
+            self.captured_pieces.append(self.selected_piece.en_passant)
+            self.selected_piece.do_enpassant()
+            self._handle_turn()
+            self._reset_selected()
+            return True
+
         
         piece_positions = [p.current_pos for p in self.pieces]
         prev_pos = self.selected_piece.current_pos
@@ -413,6 +440,7 @@ class Board:
         self.movable_blocks = []
         self.capturables = []
         self.castling_blocks = []
+        self.en_passant_block = []
         if not keep_feedback:
             self.feedback_blocks = {}
     
@@ -445,6 +473,9 @@ class Board:
         self.manager.players[1].pieces = [rook1[1], rook2[1], bishop1[1], bishop2[1], knight1[1], knight2[1], queen[1], king[1]] + pawns2
         self.pieces = self.manager.players[0].pieces + self.manager.players[1].pieces
         self.turns = [p.turn for p in self.pieces]
+        self.ai_thinking = False
+        self.delay = 1
+        self.ai_delay = random.randint(2, len(self.manager.players[1].pieces) + 2)
     
     def handle_check(self):
         self.check_state = None
@@ -466,6 +497,24 @@ class Board:
         return check_text if any([len(piece.get_movement(self.pieces)) > 1 or len(piece.get_capturables(self.pieces)) > 0 for piece in self.pieces if piece.turn == self.current_turn]) else gameover_text
     
     def handle_ai(self):
-        if not self.board_turns and self.current_turn != 0 and self.game_state('1','2','3') != '3':
-            self.ai_pieces = [p for p in self.pieces if p.turn == self.current_turn and len(p.get_movement(self.pieces)) > 1 or len(p.get_capturables(self.pieces)) > 0]
+        if self.game_state('1','2','3') == '3':
+            return
+        if not self.board_turns and self.current_turn != 0:
+            self.ai_pieces = [p for p in self.pieces if p.turn == self.current_turn and (len(p.get_movement(self.pieces)) > 1 or len(p.get_capturables(self.pieces)) > 0)]
             self.ai_thinking = True
+            
+    def check_enpassant(self, piece):
+        if piece.piece_name == 'pawn':
+            print('Got Here "B"')
+            if piece.check_enpassant(self.pieces):
+                print('It is enpassant')
+                if not self.board_turns:
+                    if self.current_turn == 0:
+                        self.en_passant_block = (piece.en_passant.current_pos[0], piece.en_passant.current_pos[1] - 1)
+                    else:
+                        self.en_passant_block = (piece.en_passant.current_pos[0], piece.en_passant.current_pos[1] + 1)
+                else:
+                    self.en_passant_block = (piece.en_passant.current_pos[0], piece.en_passant.current_pos[1] - 1)
+                return True
+            print('Not enpassant.')
+        return False
