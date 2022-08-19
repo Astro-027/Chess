@@ -1,5 +1,6 @@
 import pygame
 import random
+import glob
 
 from config import *
 from accessory import Button, Timer
@@ -13,19 +14,21 @@ class Board:
         self.board_turns = all(type(player) is Human for player in self.manager.players)
         self.blocks = [(x, y) for x in range(8) for y in range(8)]
         
-        
         self.current_turn = 0
         self.turn_count = 0
         
-        
         self.board_panel = None
+        self.selection_images = None
+
         self.check_state = None
         self.made_a_turn = False
         self.pause = False
         self.board_turning = False
+        
         self.ai_thinking = False
         self.delay = 1
         self.ai_delay = random.randint(3, 10)
+        
         self._reset_selected()
         self._reset_pieces()
 
@@ -47,13 +50,17 @@ class Board:
                 pos = self.needs_change.current_pos
                 turn = self.needs_change.turn
                 if event.key == pygame.K_1:
-                    self.change_piece(Queen(pos, turn), True)
+                    self.change_piece(Queen(pos, turn), False)
+                    self._handle_turn()
                 elif event.key == pygame.K_2:
-                    self.change_piece(Bishop(pos, turn), True)
+                    self.change_piece(Bishop(pos, turn), False)
+                    self._handle_turn()
                 elif event.key == pygame.K_3:
-                    self.change_piece(Knight(pos, turn), True)
+                    self.change_piece(Knight(pos, turn), False)
+                    self._handle_turn()
                 elif event.key == pygame.K_4:
-                    self.change_piece(Rook(pos, turn), True)
+                    self.change_piece(Rook(pos, turn), False)
+                    self._handle_turn()
         if event.type == pygame.USEREVENT:
             if self.ai_thinking:
                 if self.ai_delay > 0:
@@ -101,12 +108,11 @@ class Board:
             text = GET_FONT('elephant', 40).render("White's turn!" if self.current_turn == 1 else "Black's turn!", True, WHITE)
             screen.blit(text, text.get_rect(center=(screen.get_rect().centerx, screen.get_rect().centery)))
             
-        
         if self.needs_change == None:
             self.pause = False
         else:
             self.pause = True
-            
+            # self.draw_piece_selection(screen)
         
         if not self.board_turns and self.current_turn != 0 and self.game_state('1','2','3') != '3' and self.ai_delay <= 0:
             if self.selected_piece == None:
@@ -219,6 +225,34 @@ class Board:
         highlight.top = playing_field.top - 3
         highlight.left = playing_field.left - 3
         pygame.draw.rect(screen, WHITE, highlight, 1)
+        
+    ## Todo: Draw piece selection for pawns
+    # def draw_piece_selection(self, screen):
+    #     r = pygame.Rect(10, 0, 400, 50)
+    #     r.centerx = screen.get_rect().centerx
+    #     pygame.draw.rect(screen, OAK, r, 0, 4)
+    #     text = GET_FONT('elephant', 20).render("Select a piece!" if self.current_turn == 1 else "Select a piece!", True, WHITE)
+    #     screen.blit(text, text.get_rect(center=(r.centerx, 10)))
+    #     if self.current_turn == 0:
+    #         self.selection_images = self.load_images('Pieces/White/Top/', ['king_top', 'pawn_top'])
+    #     else:
+    #         self.selection_images = self.load_images('Pieces/Black/Top/', ['king_top', 'pawn_top'])
+    #     for i, img in enumerate(self.selection_images):
+    #         x_pos = r.x + i * 10
+    #         img_width = self.board_panel.width / 8 - 10
+    #         img = pygame.transform.scale(img, img_width)
+    #         screen.blit(img, (x_pos, r.centery))
+        
+            
+    # def load_images(self, path, ignore=[]):
+    #     images = []
+    #     files = glob.iglob(path + '*.png', recursive=True)
+    #     for filename in files:
+    #         if filename in ignore:
+    #             continue
+    #         img = pygame.image.load(filename)
+    #         images.append(img)
+    #     return images
 
     def select_block(self, pos: tuple, grid_pos: tuple = None):
         if self.pause or (pos == None and grid_pos == None):
@@ -288,14 +322,11 @@ class Board:
         
         if self.selected_piece == None:
             return False
+        
         if (block_x, block_y) in self.castling_blocks:
             self.selected_piece.do_castling((block_x, block_y))
             self.pawn_at_end(self.selected_piece)
-            # self.next_turn()
-            if self.board_turns: 
-                self.board_turning = True
-                pygame.time.set_timer(pygame.USEREVENT, 300)
-            else: self.next_turn()
+            self._handle_turn()
             self._reset_selected()
             return True
         
@@ -311,21 +342,13 @@ class Board:
             self.captured_pieces.append(self.pieces[piece_positions.index((block_x, block_y))])
             self.pieces[piece_positions.index((block_x, block_y))].destroy_piece()
             self.pawn_at_end(self.selected_piece)
-            # self.next_turn()
-            if self.board_turns: 
-                self.board_turning = True
-                pygame.time.set_timer(pygame.USEREVENT, 300)
-            else: self.next_turn()
+            self._handle_turn()
             self._reset_selected()
             return True
         
         if (block_x, block_y) != self.selected_block:
             self.pawn_at_end(self.selected_piece)
-            # self.next_turn()
-            if self.board_turns: 
-                self.board_turning = True
-                pygame.time.set_timer(pygame.USEREVENT, 300)
-            else: self.next_turn()
+            self._handle_turn()
             self._reset_selected()
             return True
         
@@ -392,7 +415,14 @@ class Board:
         self.castling_blocks = []
         if not keep_feedback:
             self.feedback_blocks = {}
-            
+    
+    def _handle_turn(self):
+        if not self.needs_change:
+            if self.board_turns: 
+                self.board_turning = True
+                pygame.time.set_timer(pygame.USEREVENT, 300)
+            else: self.next_turn()        
+    
     def _reset_pieces(self):
         self.selected_block = None
         self.stuck_indicator = None
