@@ -893,7 +893,7 @@ class Game(Scene):
     
     def _add_player_text(self, screen, placement, title):
         '''Adds text, either "Player" or "Player 1", to the upper left corner of the gamebox.'''
-        playersFont = GET_FONT('arial', 62)
+        playersFont = GET_FONT('brushscript', 62)
         player_text = playersFont.render(title, True, GOLD)
         player_text_rect = player_text.get_rect()
         player_text_rect.centerx = placement.centerx
