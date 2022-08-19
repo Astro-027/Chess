@@ -257,7 +257,7 @@ class Pawn(Piece):
         else:
             self.force_move(self.en_passant.current_pos[0], self.current_pos[1] - 1)
         self.en_passant.destroy_piece()
-            
+    
     
 class Bishop(Piece):
     def __init__(self, pos, turn):
