@@ -736,7 +736,7 @@ class Game(Scene):
         # Menu Buttons
 
         font = GET_FONT("ocr", 58)
-        self.menu_button = Button(None, (1152, 664), "Menu", font, WHITE, GREY) # TODO: Change when in-game menu working!
+        self.menu_button = Button(None, (1152, 664), "Menu", font, WHITE, GOLD) # TODO: Change when in-game menu working!
         self.exit_button = Button(None, (1152, 736), "Exit", font, WHITE, GOLD)
 
     def input(self, event):
@@ -853,6 +853,9 @@ class Game(Scene):
         right_graveyard = pygame.Rect(0, 0, right_wing.width * .75, right_wing.height * .5)
         left_graveyard.center = left_wing.center
         right_graveyard.center = right_wing.center
+
+        # Add graveyard images
+
     
         pygame.draw.rect(screen, GOLD, left_graveyard, 4)
         pygame.draw.rect(screen, GOLD, right_graveyard, 4)
