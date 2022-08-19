@@ -746,6 +746,10 @@ class Game(Scene):
                 self.timer_1.update()
             if self.board.current_turn == 1:
                 self.timer_2.update()
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                scene = PauseMenu(self.manager)
+                self.manager.push(scene)
 
         mouse_pos = pygame.mouse.get_pos()
         self.board.input(event)
@@ -755,8 +759,7 @@ class Game(Scene):
                 pygame.quit()
                 sys.exit()
             elif self.menu_button.input(mouse_pos):
-                self.manager.pop()
-                scene = TimeSelection(self.manager)
+                scene = PauseMenu(self.manager)
                 self.manager.push(scene)
     
         self.menu_button.set_color(mouse_pos)
@@ -890,7 +893,7 @@ class Game(Scene):
     
     def _add_player_text(self, screen, placement, title):
         '''Adds text, either "Player" or "Player 1", to the upper left corner of the gamebox.'''
-        playersFont = GET_FONT('brushscript', 62)
+        playersFont = GET_FONT('arial', 62)
         player_text = playersFont.render(title, True, GOLD)
         player_text_rect = player_text.get_rect()
         player_text_rect.centerx = placement.centerx
@@ -948,7 +951,9 @@ class PauseMenu(Scene):
            elif self.access.input(mouse_pos):
                scene = AccessSettings(self.manager)
                self.manager.push(scene)
-               
+       elif event.type == pygame.KEYDOWN:
+           if event.key == pygame.K_ESCAPE:
+               self.manager.pop()  
  
        self.instruct.set_color(mouse_pos)
        self.theme.set_color(mouse_pos)
