@@ -259,19 +259,24 @@ class AI_Selection(Scene):
         if event.type == pygame.MOUSEBUTTONDOWN:
             
             if self.easy.input(mouse_pos):
-                pass
+                scene = TimeSelection(self.manager)
+                self.manager.push(scene)
             
             elif self.medium.input(mouse_pos):
-                pass
+                scene = TimeSelection(self.manager)
+                self.manager.push(scene)
             
             elif self.hard.input(mouse_pos):
-                pass
+                scene = TimeSelection(self.manager)
+                self.manager.push(scene)
             
             elif self.expert.input(mouse_pos):
-                pass
+                scene = TimeSelection(self.manager)
+                self.manager.push(scene)
             
             elif self.wc.input(mouse_pos):
-                pass
+                scene = TimeSelection(self.manager)
+                self.manager.push(scene)
             
             elif self.back.input(mouse_pos):
                 self.manager.pop()
