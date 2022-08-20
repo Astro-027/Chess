@@ -1,7 +1,6 @@
 import pygame
-
+from scene import *
 from config import *
-
 
 class Piece:
     def __init__(self, pos: (int, int), turn: int, piece_name: str = None):
@@ -12,11 +11,10 @@ class Piece:
         self.disabled_moves = []
         self.piece_attacks = None
         # self.stale_mate = False # TODO: No moves left
-        self.protectors = []
+        self.protectors = {}
 
         self.start_pos, self.pos, self.current_pos = pos, pos, pos
         self.turn = turn
-        
         self.captured = False
         self.move_count = 0
     
@@ -173,11 +171,15 @@ class Piece:
             blocks.append((x, y))
         return blocks
 
-    def destroy_piece(self):
+    def destroy_piece(self, board):
         self.current_pos = None
         self.pos = None
         self.captured = True
-    
+        if self.turn == 0:
+            board.capt_dict["White"][self.piece_name] += 1
+        else:
+            board.capt_dict["Black"][self.piece_name] += 1
+
     def _get_n2n(self, n2n: str, seperator: str):
         '''
             Returns List of numbers from n2n by seperating
@@ -202,9 +204,9 @@ class Piece:
 
     def _set_sprite(self, turn, white_piece_name, black_piece_name):
         if turn == 0:
-            self.image_path = WHITE_PIECES_PATH + white_piece_name
+            self.image_path = WHITE_TOP_PATH + white_piece_name
         else:
-            self.image_path = BLACK_PIECES_PATH + black_piece_name
+            self.image_path = BLACK_TOP_PATH + black_piece_name
     
     def _change_turn(self, pieces):
         piece_turns = [p.turn for p in pieces]
