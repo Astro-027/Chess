@@ -382,6 +382,8 @@ class Board:
             self.current_turn = min(self.turns)
         if self.board_turns: self.flip_places()
         else: self.handle_ai()
+        self.handle_check()
+        self.made_a_turn = True
 
     def flip_places(self):
         for piece in self.pieces:
