@@ -13,6 +13,7 @@ class Board:
         self.manager = manager
         self.board_turns = all(type(player) is Human for player in self.manager.players)
         self.blocks = [(x, y) for x in range(8) for y in range(8)]
+        self.fen = ''
         
         self.current_turn = 0
         self.turn_count = 0
@@ -137,25 +138,45 @@ class Board:
     def draw_squares(self,screen, playing_field):
         sq_width, sq_height = playing_field.width/8, playing_field.height/8
         square = pygame.Rect(self.board_panel.left, self.board_panel.top, sq_width, sq_height)
-        for x, y in self.blocks:
-            sq_left = x * sq_width + playing_field.x
-            sq_top = y * sq_height + playing_field.y
-            sq = pygame.Rect(sq_left, sq_top, sq_width, sq_height)
+        fen_count = ''
+        self.fen = ''
+        for y in range(8):
+            for x in range(8):
+                sq_left = x * sq_width + playing_field.x
+                sq_top = y * sq_height + playing_field.y
+                sq = pygame.Rect(sq_left, sq_top, sq_width, sq_height)
+                
+                if (x + y) % 2 == 0:
+                    pygame.draw.rect(screen, OAK, sq)
+                else:
+                    pygame.draw.rect(screen, BROWN, sq)
+                if (x, y) in self.feedback_blocks:
+                    pygame.draw.rect(screen, self.feedback_blocks[(x, y)], sq)
+                elif (x, y) == self.selected_block:
+                    self.draw_rect(screen, LIGHT_GREEN, sq, 300)
+                if (x, y) in self.movable_blocks:
+                    self.draw_rect(screen, LIGHT_GREEN, sq, 300)
+                if (x, y) in self.capturables:
+                    pygame.draw.rect(screen, RED, sq, 3)
+                if (x, y) == self.en_passant_block:
+                    pygame.draw.rect(screen, RED, sq)
+                    
+                # Handle FEN
+                if (x, y) in self.piece_positions:
+                    piece = self.pieces[self.piece_positions.index((x, y))]
+                    if piece.turn == 0:
+                        self.fen += fen_count + piece.piece_name[0].upper()
+                    else:
+                        self.fen += fen_count + piece.piece_name[0].lower()
+                    fen_count = ''
+                else:
+                    if fen_count == '':
+                        fen_count = '1'
+                    else:
+                        fen_count = str(int(fen_count) + 1)
+            self.fen += '/'
+            fen_count = ''
             
-            if (x + y) % 2 == 0:
-                pygame.draw.rect(screen, OAK, sq)
-            else:
-                pygame.draw.rect(screen, BROWN, sq)
-            if (x, y) in self.feedback_blocks:
-                pygame.draw.rect(screen, self.feedback_blocks[(x, y)], sq)
-            elif (x, y) == self.selected_block:
-                self.draw_rect(screen, LIGHT_GREEN, sq, 300)
-            if (x, y) in self.movable_blocks:
-                self.draw_rect(screen, LIGHT_GREEN, sq, 300)
-            if (x, y) in self.capturables:
-                pygame.draw.rect(screen, RED, sq, 3)
-            if (x, y) == self.en_passant_block:
-                pygame.draw.rect(screen, RED, sq)
 
         
         self.add_labels(screen, square, playing_field)
@@ -240,35 +261,7 @@ class Board:
         highlight.top = playing_field.top - 3
         highlight.left = playing_field.left - 3
         pygame.draw.rect(screen, WHITE, highlight, 1)
-        
-    ## Todo: Draw piece selection for pawns
-    # def draw_piece_selection(self, screen):
-    #     r = pygame.Rect(10, 0, 400, 50)
-    #     r.centerx = screen.get_rect().centerx
-    #     pygame.draw.rect(screen, OAK, r, 0, 4)
-    #     text = GET_FONT('elephant', 20).render("Select a piece!" if self.current_turn == 1 else "Select a piece!", True, WHITE)
-    #     screen.blit(text, text.get_rect(center=(r.centerx, 10)))
-    #     if self.current_turn == 0:
-    #         self.selection_images = self.load_images('Pieces/White/Top/', ['king_top', 'pawn_top'])
-    #     else:
-    #         self.selection_images = self.load_images('Pieces/Black/Top/', ['king_top', 'pawn_top'])
-    #     for i, img in enumerate(self.selection_images):
-    #         x_pos = r.x + i * 10
-    #         img_width = self.board_panel.width / 8 - 10
-    #         img = pygame.transform.scale(img, img_width)
-    #         screen.blit(img, (x_pos, r.centery))
-        
-            
-    # def load_images(self, path, ignore=[]):
-    #     images = []
-    #     files = glob.iglob(path + '*.png', recursive=True)
-    #     for filename in files:
-    #         if filename in ignore:
-    #             continue
-    #         img = pygame.image.load(filename)
-    #         images.append(img)
-    #     return images
-
+    
     def select_block(self, pos: tuple, grid_pos: tuple = None):
         if self.pause or (pos == None and grid_pos == None):
             return
@@ -411,7 +404,9 @@ class Board:
         if self.board_turns: self.flip_places()
         else: self.handle_ai()
         self.handle_check()
+        self.piece_positions = [p.current_pos for p in self.pieces]
         self.made_a_turn = True
+        print(self.fen)
 
     def flip_places(self):
         for piece in self.pieces:
@@ -472,6 +467,7 @@ class Board:
         self.manager.players[0].pieces = [rook1[0], rook2[0], bishop1[0], bishop2[0], knight1[0], knight2[0], queen[0], king[0]] + pawns1
         self.manager.players[1].pieces = [rook1[1], rook2[1], bishop1[1], bishop2[1], knight1[1], knight2[1], queen[1], king[1]] + pawns2
         self.pieces = self.manager.players[0].pieces + self.manager.players[1].pieces
+        self.piece_positions = [p.current_pos for p in self.pieces]
         self.turns = [p.turn for p in self.pieces]
         self.ai_thinking = False
         self.delay = 1
@@ -505,9 +501,9 @@ class Board:
             
     def check_enpassant(self, piece):
         if piece.piece_name == 'pawn':
-            print('Got Here "B"')
+            # print('Got Here "B"')
             if piece.check_enpassant(self.pieces):
-                print('It is enpassant')
+                # print('It is enpassant')
                 if not self.board_turns:
                     if self.current_turn == 0:
                         self.en_passant_block = (piece.en_passant.current_pos[0], piece.en_passant.current_pos[1] - 1)
@@ -516,5 +512,5 @@ class Board:
                 else:
                     self.en_passant_block = (piece.en_passant.current_pos[0], piece.en_passant.current_pos[1] - 1)
                 return True
-            print('Not enpassant.')
+            # print('Not enpassant.')
         return False
