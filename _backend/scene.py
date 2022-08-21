@@ -1,3 +1,4 @@
+from turtle import left
 import pygame
 import sys
  
@@ -934,6 +935,11 @@ class PauseMenu(Scene):
        self.access_shadow = font.render("ACCESSIBILITY", True, ORANGE)
        self.access_shadow_rect = self.access_shadow.get_rect(center=(644, 629))
        
+       font = GET_FONT('Regular', 40)
+       self.back = Button(None, (640, 750), "<= Back to Game", font, WHITE, ORANGE)
+       self.back_shadow = font.render("<= Back to Game", True, ORANGE)
+       self.back_shadow_rect = self.back_shadow.get_rect(center=(643, 753))
+       
 
     def input(self, event):
        mouse_pos = pygame.mouse.get_pos()
@@ -954,6 +960,10 @@ class PauseMenu(Scene):
            elif self.access.input(mouse_pos):
                scene = AccessSettings(self.manager)
                self.manager.push(scene)
+               
+           elif self.back.input(mouse_pos):
+               self.manager.pop()
+               
        elif event.type == pygame.KEYDOWN:
            if event.key == pygame.K_ESCAPE:
                self.manager.pop()  
@@ -962,6 +972,7 @@ class PauseMenu(Scene):
        self.theme.set_color(mouse_pos)
        self.lang.set_color(mouse_pos)
        self.access.set_color(mouse_pos)
+       self.back.set_color(mouse_pos)
  
     def draw(self, screen):
        pygame.display.set_caption("Pause Menu")
@@ -978,6 +989,8 @@ class PauseMenu(Scene):
        self.lang.update(screen)
        screen.blit(self.access_shadow, self.access_shadow_rect)
        self.access.update(screen)
+       screen.blit(self.back_shadow, self.back_shadow_rect)
+       self.back.update(screen)
 
 ##########################
 # Information Pages #
