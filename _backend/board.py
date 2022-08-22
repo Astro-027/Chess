@@ -1,3 +1,4 @@
+from string import whitespace
 import pygame
 import random
 import glob
@@ -27,6 +28,85 @@ class Board:
         
         self._reset_selected()
         self._reset_pieces()
+
+        self.b_pawn1, self.b_pawn2, self.b_pawn3, self.b_pawn4 = B_PAWN1, B_PAWN2, B_PAWN3, B_PAWN4
+        self.b_pawn1 = self._fifth_img(self.b_pawn1)
+        self.b_pawn2 = self._fifth_img(self.b_pawn2)
+        self.b_pawn3 = self._fifth_img(self.b_pawn3)
+        self.b_pawn4 = self._fifth_img(self.b_pawn4)
+
+        self.b_pawn5, self.b_pawn6, self.b_pawn7, self.b_pawn8 = B_PAWN5, B_PAWN6, B_PAWN7, B_PAWN8
+        self.b_pawn5 = self._fifth_img(self.b_pawn5)
+        self.b_pawn6 = self._fifth_img(self.b_pawn6)
+        self.b_pawn7 = self._fifth_img(self.b_pawn7)
+        self.b_pawn8 = self._fifth_img(self.b_pawn8)
+
+        self.b_rook1, self.b_rook2 = B_ROOK1, B_ROOK2
+        self.b_rook1 = self._fifth_img(self.b_rook1)
+        self.b_rook2 = self._fifth_img(self.b_rook2)
+
+        self.b_knight1, self.b_knight2 = B_KNIGHT1, B_KNIGHT2
+        self.b_knight1 = self._fifth_img(self.b_knight1)
+        self.b_knight1 = pygame.transform.flip(self.b_knight1, True, False)
+        self.b_knight2 = self._fifth_img(self.b_knight2)
+
+        self.b_bishop1, self.b_bishop2 = B_BISHOP1, B_BISHOP2
+        self.b_bishop1 = self._fifth_img(self.b_bishop1)
+        self.b_bishop1 = pygame.transform.rotate(self.b_bishop1,270)
+        self.b_bishop2 = self._fifth_img(self.b_bishop2)
+        self.b_bishop2 = pygame.transform.flip(self.b_bishop2, True, False)
+        self.b_bishop2 = pygame.transform.rotate(self.b_bishop2,90)
+
+        self.b_king, self.b_queen = B_KING, B_QUEEN
+        self.b_king = self._fifth_img(self.b_king)
+        self.b_queen = self._fifth_img(self.b_queen)
+
+        self.w_pawn1, self.w_pawn2, self.w_pawn3, self.w_pawn4 = W_PAWN1, W_PAWN2, W_PAWN3, W_PAWN4
+        self.w_pawn1 = self._fifth_img(self.w_pawn1)
+        self.w_pawn2 = self._fifth_img(self.w_pawn2)
+        self.w_pawn3 = self._fifth_img(self.w_pawn3)
+        self.w_pawn4 = self._fifth_img(self.w_pawn4)
+
+        self.w_pawn5, self.w_pawn6, self.w_pawn7, self.w_pawn8 = W_PAWN5, W_PAWN6, W_PAWN7, W_PAWN8
+        self.w_pawn5 = self._fifth_img(self.w_pawn5)
+        self.w_pawn6 = self._fifth_img(self.w_pawn6)
+        self.w_pawn7 = self._fifth_img(self.w_pawn7)
+        self.w_pawn8 = self._fifth_img(self.w_pawn8)
+
+        self.w_rook1, self.w_rook2 = W_ROOK1, W_ROOK2
+        self.w_rook1 = self._fifth_img(self.w_rook1)
+        self.w_rook2 = self._fifth_img(self.w_rook2)
+
+        self.w_knight1, self.w_knight2 = W_KNIGHT1, W_KNIGHT2
+        self.w_knight1 = self._fifth_img(self.w_knight1)
+        self.w_knight1 = pygame.transform.flip(self.w_knight1, True, False)
+        self.w_knight2 = self._fifth_img(self.w_knight2)
+
+        self.w_bishop1, self.w_bishop2 = W_BISHOP1, W_BISHOP2
+        self.w_bishop1 = self._fifth_img(self.w_bishop1)
+        self.w_bishop1 = pygame.transform.rotate(self.w_bishop1,270)
+        self.w_bishop2 = self._fifth_img(self.w_bishop2)
+        self.w_bishop2 = pygame.transform.flip(self.w_bishop2, True, False)
+        self.w_bishop2 = pygame.transform.rotate(self.w_bishop2,90)
+
+        self.w_king, self.w_queen = W_KING, W_QUEEN
+        self.w_king = self._fifth_img(self.w_king)
+        self.w_queen = self._fifth_img(self.w_queen)
+
+        self.capt_dict = {"Black":{"pawn":0,
+                        "bishop":0,
+                        "rook": 0,
+                        "knight": 0,
+                        "queen":0,
+                        "king":0
+            },
+            "White": {"pawn": 0,
+                        "bishop": 0,
+                        "rook": 0,
+                        "knight": 0,
+                        "queen": 0,
+                        "king": 0}
+            }
 
     def input(self, event):
         mouse_pos = pygame.mouse.get_pos()
@@ -98,10 +178,55 @@ class Board:
         self.draw_pieces(screen)
         
         if self.board_turning and self.board_turns:
+            if self.current_turn == 1:
+                text_color = BLACK
+                rect_color = WHITE
+            else:
+                text_color = WHITE
+                rect_color = BLACK
+
             r = pygame.Rect(0, 0, 400, 200)
             r.center = screen.get_rect().center
-            pygame.draw.rect(screen, OAK, r, 0, 10)
-            text = GET_FONT('elephant', 40).render("White's turn!" if self.current_turn == 1 else "Black's turn!", True, WHITE)
+            r_border = pygame.Rect(0, 0, 400, 200)
+            r_border.center = r.center
+            border_hl = pygame.Rect(0,0,395,195)
+            border_hl.topleft = r_border.topleft
+            border_shadow = pygame.Rect(0,0,395,195)
+            border_shadow.bottomright = r_border.bottomright
+            pygame.draw.rect(screen, rect_color, r, 0, 10)
+            pygame.draw.rect(screen,GOLD, r_border,6)
+            pygame.draw.rect(screen,WHITE, border_hl,1)
+            pygame.draw.rect(screen,GOLD_SHADOW,border_shadow,2)
+
+            r_detail = pygame.Rect(0,0,30,30)
+            detail_hl = pygame.Rect(0,0,28,28)
+            detail_s = pygame.Rect(0,0,28,28)
+            r_detail.left, r_detail.top = r.left - 10, r.top - 10
+            detail_hl.left, detail_hl.top = r.left - 11, r.top - 10
+            detail_s.left, detail_s.top = r.left - 8, r.top - 8
+            pygame.draw.rect(screen,GOLD,r_detail,4)
+            pygame.draw.rect(screen,WHITE,detail_hl,1)
+            pygame.draw.rect(screen,GOLD_SHADOW, detail_s,2)
+            r_detail.left, r_detail.bottom = r.left - 10, r.bottom + 10
+            detail_hl.left, detail_hl.bottom = r.left - 11, r.bottom + 7
+            detail_s.left, detail_s.bottom = r.left - 8, r.bottom + 10
+            pygame.draw.rect(screen,GOLD,r_detail,4)
+            pygame.draw.rect(screen,WHITE,detail_hl,1)
+            pygame.draw.rect(screen,GOLD_SHADOW, detail_s,2)
+            r_detail.right,r_detail.top = r.right + 10, r.top - 10
+            detail_hl.right, detail_hl.top = r.right + 7, r.top - 10
+            detail_s.right, detail_s.top = r.right + 10, r.top - 8
+            pygame.draw.rect(screen,GOLD,r_detail,4)
+            pygame.draw.rect(screen,WHITE,detail_hl,1)
+            pygame.draw.rect(screen,GOLD_SHADOW, detail_s,2)
+            r_detail.right, r_detail.bottom = r.right + 10, r.bottom + 10
+            detail_hl.right, detail_hl.bottom = r.right + 7, r.bottom + 8
+            detail_s.right, detail_s.bottom = r.right + 10, r.bottom + 10
+            pygame.draw.rect(screen,GOLD,r_detail,4)
+            pygame.draw.rect(screen,WHITE,detail_hl,1)
+            pygame.draw.rect(screen,GOLD_SHADOW, detail_s,2)
+
+            text = GET_FONT('elephant', 40).render("White's turn!" if self.current_turn == 1 else "Black's turn!", True, text_color)
             screen.blit(text, text.get_rect(center=(screen.get_rect().centerx, screen.get_rect().centery)))
             
         if self.needs_change == None:
@@ -132,7 +257,93 @@ class Board:
                 else:
                     self.change_piece(Knight(pos, turn), False)
                     self._handle_turn()
+
+        self._add_black_graveyard_pieces(screen)
+        self._add_white_graveyard_pieces(screen)
+    
+    def _add_black_graveyard_pieces(self,screen):
+            if self.capt_dict["Black"]["pawn"] >= 1:
+                screen.blit(self.b_pawn1, (10,110))
+            if self.capt_dict["Black"]["pawn"] >= 2:
+                screen.blit(self.b_pawn2, (50,110))
+            if self.capt_dict["Black"]["pawn"] >= 3:
+                screen.blit(self.b_pawn3, (90,110))
+            if self.capt_dict["Black"]["pawn"] >= 4:
+                screen.blit(self.b_pawn4, (130,110))
+            if self.capt_dict["Black"]["pawn"] >= 5:
+                screen.blit(self.b_pawn5, (10,180))
+            if self.capt_dict["Black"]["pawn"] >= 6:
+                screen.blit(self.b_pawn6, (50,180))
+            if self.capt_dict["Black"]["pawn"] >= 7:
+                screen.blit(self.b_pawn7, (90,180))
+            if self.capt_dict["Black"]["pawn"] >= 8:
+                screen.blit(self.b_pawn8, (130,180))
+
+            if self.capt_dict["Black"]["bishop"] >= 1:
+                screen.blit(self.b_bishop1, (20,320))
+            if self.capt_dict["Black"]["bishop"] >= 2:
+                screen.blit(self.b_bishop2, (30,350))
+
+            if self.capt_dict["Black"]["rook"] >= 1:
+                screen.blit(self.b_rook1, (20,330))
+            if self.capt_dict["Black"]["rook"] >= 2:
+                screen.blit(self.b_rook1, (110,330))
+
+            if self.capt_dict["Black"]["knight"] >= 1:
+                screen.blit(self.b_knight1, (10,420))
+            if self.capt_dict["Black"]["knight"] >= 2:
+                screen.blit(self.b_knight2, (120,420))
             
+            if self.capt_dict["Black"]["queen"] == 1:
+                screen.blit(self.b_queen, (65,420))
+
+            # Not actually possible to capture the king
+            # if self.capt_dict["Black"]["king"] == 1:
+            #     screen.blit(self.b_king, (10,420))
+
+    def _add_white_graveyard_pieces(self,screen):
+        if self.capt_dict["White"]["pawn"] >= 1:
+            screen.blit(self.w_pawn1, (1045,110))
+        if self.capt_dict["White"]["pawn"] >= 2:
+            screen.blit(self.w_pawn2, (1085,110))
+        if self.capt_dict["White"]["pawn"] >= 3:
+            screen.blit(self.w_pawn3, (1125,110))
+        if self.capt_dict["White"]["pawn"] >= 4:
+            screen.blit(self.w_pawn4, (1165,110))
+        if self.capt_dict["White"]["pawn"] >= 5:
+            screen.blit(self.w_pawn5, (1045,180))
+        if self.capt_dict["White"]["pawn"] >= 6:
+            screen.blit(self.w_pawn6, (1085,180))
+        if self.capt_dict["White"]["pawn"] >= 7:
+            screen.blit(self.w_pawn7, (1125,180))
+        if self.capt_dict["White"]["pawn"] >= 8:
+            screen.blit(self.w_pawn8, (1165,180))
+
+        if self.capt_dict["White"]["bishop"] >= 1:
+            screen.blit(self.w_bishop1, (1060,320))
+        if self.capt_dict["White"]["bishop"] >= 2:
+            screen.blit(self.w_bishop2, (1060,350))
+
+        if self.capt_dict["White"]["rook"] >= 1:
+            screen.blit(self.w_rook1, (1060,330))
+        if self.capt_dict["White"]["rook"] >= 2:
+            screen.blit(self.w_rook1, (1150,330))
+
+        if self.capt_dict["White"]["knight"] >= 1:
+            screen.blit(self.w_knight1, (1050,420))
+        if self.capt_dict["White"]["knight"] >= 2:
+            screen.blit(self.w_knight2, (1160,420))
+        
+        if self.capt_dict["White"]["queen"] == 1:
+            screen.blit(self.w_queen, (1105,420))
+
+            
+                
+    def _halve_img(self, img):
+        return pygame.transform.scale(img, (img.get_width() //2, img.get_height() // 2))
+
+    def _fifth_img(self, img):
+        return pygame.transform.scale(img, (img.get_width() //5, img.get_height() // 5))
 
     def draw_squares(self,screen, playing_field):
         sq_width, sq_height = playing_field.width/8, playing_field.height/8
@@ -339,7 +550,7 @@ class Board:
 
         if (block_x, block_y) in self.capturables:
             self.captured_pieces.append(self.pieces[piece_positions.index((block_x, block_y))])
-            self.pieces[piece_positions.index((block_x, block_y))].destroy_piece()
+            self.pieces[piece_positions.index((block_x, block_y))].destroy_piece(self)
             self.pawn_at_end(self.selected_piece)
             self._handle_turn()
             self._reset_selected()

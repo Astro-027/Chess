@@ -1,3 +1,4 @@
+from turtle import left
 import pygame
 import sys
  
@@ -707,9 +708,10 @@ class AccessSettings(GameOptions):
        screen.blit(self.back_shadow, self.back_shadow_rect)
        self.back.update(screen)
 
-#############
-# Game Play #
-#############
+#########################
+#       Game Play       #
+#########################
+
 class Game(Scene):
     def __init__(self, manager, time=(0, 0)):
         '''For timed and untimed chess matches.'''
@@ -738,7 +740,7 @@ class Game(Scene):
         font = GET_FONT("ocr", 58)
         self.menu_button = Button(None, (1152, 664), "Menu", font, WHITE, GOLD) # TODO: Change when in-game menu working!
         self.exit_button = Button(None, (1152, 736), "Exit", font, WHITE, GOLD)
-
+        
     def input(self, event):
         mouse_pos = pygame.mouse.get_pos()
         if event.type == pygame.USEREVENT:
@@ -835,11 +837,12 @@ class Game(Scene):
         left_shadow.top = left_wing.top + 5
         right_shadow.left = right_wing.left + 5
         right_shadow.top = right_wing.top + 5
+        self._add_wing_highlight(screen,left_wing,right_wing)
     
         pygame.draw.rect(screen, GOLD_SHADOW, left_shadow, 3)
         pygame.draw.rect(screen, GOLD_SHADOW, right_shadow, 3)
         
-        # Highlight
+    def _add_wing_highlight(self,screen,left_wing,right_wing):
         left_highlight = pygame.Rect(0, 0, left_wing.width * .99, left_wing.height * .995)
         right_highlight = pygame.Rect(0, 0, right_wing.width * .99, right_wing.height * .995)
         left_highlight.topleft = left_wing.topleft
@@ -859,8 +862,11 @@ class Game(Scene):
     
         pygame.draw.rect(screen, GOLD, left_graveyard, 4)
         pygame.draw.rect(screen, GOLD, right_graveyard, 4)
+        self._add_graveyard_shadows(screen, left_graveyard,right_graveyard)
+
+        # Add graveyard images
         
-        # Shadows
+    def _add_graveyard_shadows(self,screen,left_graveyard,right_graveyard):
         left_shadow = pygame.Rect(0, 0, left_graveyard.width * .99, left_graveyard.height * .99)
         right_shadow = pygame.Rect(0, 0, right_graveyard.width * .99, right_graveyard.height * .99)
         left_shadow.left = left_graveyard.left + 3
@@ -904,6 +910,12 @@ class Game(Scene):
     
         screen.blit(player_text, player_text_rect)
 
+
+
+#########################################
+#             PAUSE MENU                #
+#########################################
+
 class PauseMenu(Scene):
     "Screen for when Pause is deployed"
     def __init__(self, manager):
@@ -934,6 +946,11 @@ class PauseMenu(Scene):
        self.access_shadow = font.render("ACCESSIBILITY", True, ORANGE)
        self.access_shadow_rect = self.access_shadow.get_rect(center=(644, 629))
        
+       font = GET_FONT('Regular', 40)
+       self.back = Button(None, (640, 750), "<= Back to Game", font, WHITE, ORANGE)
+       self.back_shadow = font.render("<= Back to Game", True, ORANGE)
+       self.back_shadow_rect = self.back_shadow.get_rect(center=(643, 753))
+       
 
     def input(self, event):
        mouse_pos = pygame.mouse.get_pos()
@@ -954,6 +971,10 @@ class PauseMenu(Scene):
            elif self.access.input(mouse_pos):
                scene = AccessSettings(self.manager)
                self.manager.push(scene)
+               
+           elif self.back.input(mouse_pos):
+               self.manager.pop()
+               
        elif event.type == pygame.KEYDOWN:
            if event.key == pygame.K_ESCAPE:
                self.manager.pop()  
@@ -962,6 +983,7 @@ class PauseMenu(Scene):
        self.theme.set_color(mouse_pos)
        self.lang.set_color(mouse_pos)
        self.access.set_color(mouse_pos)
+       self.back.set_color(mouse_pos)
  
     def draw(self, screen):
        pygame.display.set_caption("Pause Menu")
@@ -978,6 +1000,8 @@ class PauseMenu(Scene):
        self.lang.update(screen)
        screen.blit(self.access_shadow, self.access_shadow_rect)
        self.access.update(screen)
+       screen.blit(self.back_shadow, self.back_shadow_rect)
+       self.back.update(screen)
 
 ##########################
 # Information Pages #
