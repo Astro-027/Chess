@@ -36,8 +36,10 @@ FILE_PATH = Path(__file__).parent.absolute()
 ASSETS_PATH = str(FILE_PATH / "Assets") + "/"
 IMAGES_PATH = ASSETS_PATH + "Images/"
 TEXTURE_PATH = ASSETS_PATH + "Textures/"
-BLACK_PIECES_PATH = ASSETS_PATH + "Pieces/Black/Top/"
-WHITE_PIECES_PATH = ASSETS_PATH + "Pieces/White/Top/"
+BLACK_TOP_PATH = ASSETS_PATH + "Pieces/Black/Top/"
+WHITE_TOP_PATH = ASSETS_PATH + "Pieces/White/Top/"
+BLACK_FRONT_PATH = ASSETS_PATH + "Pieces/Black/Front/"
+WHITE_FRONT_PATH = ASSETS_PATH + "Pieces/White/Front/"
 FONTS_PATH = ASSETS_PATH + "Fonts" + "/"
 
 #########
@@ -76,3 +78,41 @@ PURPLE = ('#cc5ced')
 # Images #
 ##########
 BACKGROUND = pygame.image.load(IMAGES_PATH + "brain_colorful.jpg")
+
+#################################
+#       GRAVEYARD IMAGES        #
+#################################
+
+#Graveyard images
+B_PAWN1 = pygame.image.load(BLACK_FRONT_PATH + "pawn_front.png")
+B_PAWN2 = pygame.image.load(BLACK_FRONT_PATH + "pawn_front.png")
+B_PAWN3 = pygame.image.load(BLACK_FRONT_PATH + "pawn_front.png")
+B_PAWN4 = pygame.image.load(BLACK_FRONT_PATH + "pawn_front.png")
+B_PAWN5 = pygame.image.load(BLACK_FRONT_PATH + "pawn_front.png")
+B_PAWN6 = pygame.image.load(BLACK_FRONT_PATH + "pawn_front.png")
+B_PAWN7 = pygame.image.load(BLACK_FRONT_PATH + "pawn_front.png")
+B_PAWN8 = pygame.image.load(BLACK_FRONT_PATH + "pawn_front.png")
+B_BISHOP1 = pygame.image.load(BLACK_FRONT_PATH + "bishop_front.png")
+B_BISHOP2 = pygame.image.load(BLACK_FRONT_PATH + "bishop_front.png")
+B_ROOK1 = pygame.image.load(BLACK_FRONT_PATH + "rook_front.png")
+B_ROOK2  = pygame.image.load(BLACK_FRONT_PATH + "rook_front.png")
+B_KNIGHT1 = pygame.image.load(BLACK_FRONT_PATH + "knight_front.png")
+B_KNIGHT2 = pygame.image.load(BLACK_FRONT_PATH + "knight_front.png")
+B_QUEEN = pygame.image.load(BLACK_FRONT_PATH + "queen_front.png")
+B_KING = pygame.image.load(BLACK_FRONT_PATH + "king_front.png")
+W_PAWN1 = pygame.image.load(WHITE_FRONT_PATH + "pawn_front.png")
+W_PAWN2 = pygame.image.load(WHITE_FRONT_PATH + "pawn_front.png") 
+W_PAWN3 = pygame.image.load(WHITE_FRONT_PATH + "pawn_front.png")
+W_PAWN4 = pygame.image.load(WHITE_FRONT_PATH + "pawn_front.png") 
+W_PAWN5 = pygame.image.load(WHITE_FRONT_PATH + "pawn_front.png")
+W_PAWN6 = pygame.image.load(WHITE_FRONT_PATH + "pawn_front.png")
+W_PAWN7 = pygame.image.load(WHITE_FRONT_PATH + "pawn_front.png")
+W_PAWN8 = pygame.image.load(WHITE_FRONT_PATH + "pawn_front.png")
+W_BISHOP1 = pygame.image.load(WHITE_FRONT_PATH + "bishop_front.png")
+W_BISHOP2 = pygame.image.load(WHITE_FRONT_PATH + "bishop_front.png")
+W_ROOK1 = pygame.image.load(WHITE_FRONT_PATH + "rook_front.png") 
+W_ROOK2 = pygame.image.load(WHITE_FRONT_PATH + "rook_front.png")
+W_KNIGHT1 = pygame.image.load(WHITE_FRONT_PATH + "knight_front.png") 
+W_KNIGHT2 = pygame.image.load(WHITE_FRONT_PATH + "knight_front.png")
+W_QUEEN = pygame.image.load(WHITE_FRONT_PATH + "queen_front.png")
+W_KING = pygame.image.load(WHITE_FRONT_PATH + "king_front.png")
