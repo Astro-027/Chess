@@ -1,3 +1,4 @@
+from string import whitespace
 import pygame
 import random
 import glob
@@ -177,10 +178,55 @@ class Board:
         self.draw_pieces(screen)
         
         if self.board_turning and self.board_turns:
+            if self.current_turn == 1:
+                text_color = BLACK
+                rect_color = WHITE
+            else:
+                text_color = WHITE
+                rect_color = BLACK
+
             r = pygame.Rect(0, 0, 400, 200)
             r.center = screen.get_rect().center
-            pygame.draw.rect(screen, OAK, r, 0, 10)
-            text = GET_FONT('elephant', 40).render("White's turn!" if self.current_turn == 1 else "Black's turn!", True, WHITE)
+            r_border = pygame.Rect(0, 0, 400, 200)
+            r_border.center = r.center
+            border_hl = pygame.Rect(0,0,395,195)
+            border_hl.topleft = r_border.topleft
+            border_shadow = pygame.Rect(0,0,395,195)
+            border_shadow.bottomright = r_border.bottomright
+            pygame.draw.rect(screen, rect_color, r, 0, 10)
+            pygame.draw.rect(screen,GOLD, r_border,6)
+            pygame.draw.rect(screen,WHITE, border_hl,1)
+            pygame.draw.rect(screen,GOLD_SHADOW,border_shadow,2)
+
+            r_detail = pygame.Rect(0,0,30,30)
+            detail_hl = pygame.Rect(0,0,28,28)
+            detail_s = pygame.Rect(0,0,28,28)
+            r_detail.left, r_detail.top = r.left - 10, r.top - 10
+            detail_hl.left, detail_hl.top = r.left - 11, r.top - 10
+            detail_s.left, detail_s.top = r.left - 8, r.top - 8
+            pygame.draw.rect(screen,GOLD,r_detail,4)
+            pygame.draw.rect(screen,WHITE,detail_hl,1)
+            pygame.draw.rect(screen,GOLD_SHADOW, detail_s,2)
+            r_detail.left, r_detail.bottom = r.left - 10, r.bottom + 10
+            detail_hl.left, detail_hl.bottom = r.left - 11, r.bottom + 7
+            detail_s.left, detail_s.bottom = r.left - 8, r.bottom + 10
+            pygame.draw.rect(screen,GOLD,r_detail,4)
+            pygame.draw.rect(screen,WHITE,detail_hl,1)
+            pygame.draw.rect(screen,GOLD_SHADOW, detail_s,2)
+            r_detail.right,r_detail.top = r.right + 10, r.top - 10
+            detail_hl.right, detail_hl.top = r.right + 7, r.top - 10
+            detail_s.right, detail_s.top = r.right + 10, r.top - 8
+            pygame.draw.rect(screen,GOLD,r_detail,4)
+            pygame.draw.rect(screen,WHITE,detail_hl,1)
+            pygame.draw.rect(screen,GOLD_SHADOW, detail_s,2)
+            r_detail.right, r_detail.bottom = r.right + 10, r.bottom + 10
+            detail_hl.right, detail_hl.bottom = r.right + 7, r.bottom + 8
+            detail_s.right, detail_s.bottom = r.right + 10, r.bottom + 10
+            pygame.draw.rect(screen,GOLD,r_detail,4)
+            pygame.draw.rect(screen,WHITE,detail_hl,1)
+            pygame.draw.rect(screen,GOLD_SHADOW, detail_s,2)
+
+            text = GET_FONT('elephant', 40).render("White's turn!" if self.current_turn == 1 else "Black's turn!", True, text_color)
             screen.blit(text, text.get_rect(center=(screen.get_rect().centerx, screen.get_rect().centery)))
             
         if self.needs_change == None:
