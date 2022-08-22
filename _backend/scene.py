@@ -738,16 +738,17 @@ class Game(Scene):
         # Menu Buttons
 
         font = GET_FONT("ocr", 58)
-        self.menu_button = Button(None, (1152, 664), "Menu", font, WHITE, GOLD)
+        self.menu_button = Button(None, (1152, 664), "Menu", font, WHITE, GOLD) # TODO: Change when in-game menu working!
         self.exit_button = Button(None, (1152, 736), "Exit", font, WHITE, GOLD)
         
     def input(self, event):
         mouse_pos = pygame.mouse.get_pos()
         if event.type == pygame.USEREVENT:
-            if self.board.current_turn == 0:
-                self.timer_1.update()
-            if self.board.current_turn == 1:
-                self.timer_2.update()
+            if self.board.check_state != -1 and self.board.turn_count != 0 and not self.board.pause and not self.board.board_turning:
+                if self.board.current_turn == 0 and self.timer_1 != None:
+                    self.timer_1.update()
+                if self.board.current_turn == 1 and self.timer_2 != None:
+                    self.timer_2.update()
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 scene = PauseMenu(self.manager)
@@ -774,6 +775,9 @@ class Game(Scene):
         wing_width = screen.get_width() * .19        
         wing_height = screen.get_height()
     
+        # Board
+        self.board.draw(screen)
+    
         left_wing = pygame.Rect(0, 0, wing_width, wing_height)
         right_wing = pygame.Rect(0, 0, wing_width, wing_height)
         left_wing.topleft = (0, 0)
@@ -792,13 +796,10 @@ class Game(Scene):
                     self.timer_2.add_additional(self.time[1])
             self.board.turn_count += 1
             self.board.made_a_turn = False
-
-        # Board
-        self.board.draw(screen)
         
         self.game_state_text = GET_FONT("elephant", 30).render(self.board.game_state(), True, OAK)
         screen.blit(self.game_state_text, self.game_state_text.get_rect(center=(self.board.board_panel.centerx, screen.get_height() - 30)))
-
+        
         # Game Frame
         self._draw_frame(screen, left_wing, right_wing)
         
@@ -856,6 +857,9 @@ class Game(Scene):
         right_graveyard = pygame.Rect(0, 0, right_wing.width * .75, right_wing.height * .5)
         left_graveyard.center = left_wing.center
         right_graveyard.center = right_wing.center
+
+        # Add graveyard images
+    
         pygame.draw.rect(screen, GOLD, left_graveyard, 4)
         pygame.draw.rect(screen, GOLD, right_graveyard, 4)
         self._add_graveyard_shadows(screen, left_graveyard,right_graveyard)
@@ -898,7 +902,7 @@ class Game(Scene):
     
     def _add_player_text(self, screen, placement, title):
         '''Adds text, either "Player" or "Player 1", to the upper left corner of the gamebox.'''
-        playersFont = GET_FONT('brushscript', 62)
+        playersFont = GET_FONT('arial', 62)
         player_text = playersFont.render(title, True, GOLD)
         player_text_rect = player_text.get_rect()
         player_text_rect.centerx = placement.centerx

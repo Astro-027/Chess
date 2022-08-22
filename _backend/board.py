@@ -451,36 +451,9 @@ class Board:
         highlight.top = playing_field.top - 3
         highlight.left = playing_field.left - 3
         pygame.draw.rect(screen, WHITE, highlight, 1)
-        
-    ## Todo: Draw piece selection for pawns
-    # def draw_piece_selection(self, screen):
-    #     r = pygame.Rect(10, 0, 400, 50)
-    #     r.centerx = screen.get_rect().centerx
-    #     pygame.draw.rect(screen, OAK, r, 0, 4)
-    #     text = GET_FONT('elephant', 20).render("Select a piece!" if self.current_turn == 1 else "Select a piece!", True, WHITE)
-    #     screen.blit(text, text.get_rect(center=(r.centerx, 10)))
-    #     if self.current_turn == 0:
-    #         self.selection_images = self.load_images('Pieces/White/Top/', ['king_top', 'pawn_top'])
-    #     else:
-    #         self.selection_images = self.load_images('Pieces/Black/Top/', ['king_top', 'pawn_top'])
-    #     for i, img in enumerate(self.selection_images):
-    #         x_pos = r.x + i * 10
-    #         img_width = self.board_panel.width / 8 - 10
-    #         img = pygame.transform.scale(img, img_width)
-    #         screen.blit(img, (x_pos, r.centery))
-        
-            
-    # def load_images(self, path, ignore=[]):
-    #     images = []
-    #     files = glob.iglob(path + '*.png', recursive=True)
-    #     for filename in files:
-    #         if filename in ignore:
-    #             continue
-    #         img = pygame.image.load(filename)
-    #         images.append(img)
-    #     return images
 
     def select_block(self, pos: tuple, grid_pos: tuple = None):
+        self.handle_check()
         if self.pause or (pos == None and grid_pos == None):
             return
         if pos != None: x, y = pos
@@ -498,7 +471,6 @@ class Board:
             if self.selected_block in piece_positions:
                 if (self.pieces[piece_positions.index(self.selected_block)].turn == self.current_turn):
                     self.selected_piece = self.pieces[piece_positions.index(self.selected_block)]
-                    self.handle_check()
                     
                     if self.selected_piece.piece_name == 'pawn':
                         self.check_enpassant(self.selected_piece)
@@ -656,11 +628,15 @@ class Board:
             self.feedback_blocks = {}
     
     def _handle_turn(self):
-        if not self.needs_change:
-            if self.board_turns: 
+        self.handle_check()
+        if not self.needs_change and self.check_state != -1:
+            if self.board_turns:
+                if self.game_state() == 'Check-Mate':
+                    return
                 self.board_turning = True
                 pygame.time.set_timer(pygame.USEREVENT, 300)
-            else: self.next_turn()        
+            else: self.next_turn()  
+            self.made_a_turn = True      
     
     def _reset_pieces(self):
         self.selected_block = None
@@ -695,7 +671,10 @@ class Board:
                 if piece.turn == self.current_turn:
                     piece.set_disabled_moves(self.pieces)
                 if piece.is_check(self.pieces, piece.current_pos):
-                    self.check_state = piece.turn
+                    if any([len(piece.get_movement(self.pieces)) > 1 or len(piece.get_capturables(self.pieces)) > 0 for piece in self.pieces if piece.turn == self.current_turn]):
+                        self.check_state = piece.turn
+                    else:
+                        self.check_state = -1
                 
     def game_state(self, playing_text = 'Playing', check_text = 'Check', gameover_text = 'Check-Mate'):
         '''
@@ -705,8 +684,8 @@ class Board:
         '''
         if self.check_state == None:
             return playing_text
-        return check_text if any([len(piece.get_movement(self.pieces)) > 1 or len(piece.get_capturables(self.pieces)) > 0 for piece in self.pieces if piece.turn == self.current_turn]) else gameover_text
-    
+        return gameover_text if self.check_state == -1 else check_text
+
     def handle_ai(self):
         if self.game_state('1','2','3') == '3':
             return
